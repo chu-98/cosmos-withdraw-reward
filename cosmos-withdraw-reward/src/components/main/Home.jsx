@@ -1,5 +1,7 @@
 import { SigningCosmosClient } from "@cosmjs/launchpad";
-import React from "react";
+// import { SigningStargateClient } from "@cosmjs/stargate";
+
+import React, { useState } from "react";
 import styled from "styled-components";
 import Claim from "./Claim";
 
@@ -29,10 +31,9 @@ const Btn = styled.button`
   font-size: 30px;
   color: #fff;
 `;
-// const chainId = "osmosis";
-// console.log(window.keplr.enable(chainId));
 
 function Home() {
+  const [alias, setAlias] = useState(null);
   const connectWallet = async () => {
     if (!window.keplr) {
       alert("Please install keplr extension");
@@ -40,7 +41,7 @@ function Home() {
       const chainId = "cosmoshub-4";
       await window.keplr.enable(chainId);
 
-      const offlineSigner = window.keplr.getOfflineSigner(chainId);
+      const offlineSigner = window.getOfflineSigner(chainId);
       const accounts = await offlineSigner.getAccounts();
       const cosmJS = new SigningCosmosClient(
         "https://lcd-cosmoshub.keplr.app",
@@ -48,18 +49,31 @@ function Home() {
         offlineSigner
       );
       console.log(cosmJS);
+      async function get() {
+        return new Promise(function (resolve, reject) {
+          const getkey = window.keplr.getKey(chainId);
+          resolve(getkey);
+          reject();
+        });
+      }
+      get().then(function (resolveData) {
+        console.log(resolveData);
+        setAlias(resolveData.name);
+      });
     }
   };
+  console.log(alias);
 
   return (
     <div>
       <Header>
         <Name>Wallet Name</Name>
-        <Name></Name>
+        <Name>Address : {alias}</Name>
         <Connect>
           <Btn onClick={connectWallet}>Keplr Connect</Btn>
         </Connect>
       </Header>
+
       <Container>
         <Claim />
         <Claim />
